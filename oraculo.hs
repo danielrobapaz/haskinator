@@ -1,6 +1,7 @@
 import qualified Data.Map as Map
     
 {-- TIPOS DE DATOS --}
+
 type Opciones = Map.Map String Oraculo
 
 data Oraculo = OraculoPred { prediccion :: String}
@@ -13,10 +14,13 @@ data Oraculo = OraculoPred { prediccion :: String}
 -- asociada al string S (el input) si este es una pregunta.
 respuesta :: Oraculo -> String -> Oraculo
 respuesta (OraculoPred _) _ = error "No se puede obtener respuesta de una prediccion"
-respuesta (OraculoPreg _ o) s =
-    if Map.member s o
-        then Map.findWithDefault (OraculoPred "") s o
-        else error "No existe esa opcion"
+respuesta (OraculoPreg _ o) s = o Map.! s
+
+{--
+obtenerCadena :: Oraculo -> String -> Maybe [(String, String)]
+obtenerCadena (OraculoPred p) s = 
+obtenerCadena (OraculoPreg p o) s =  
+--}
 
 {-- FUNCIONES DE CONSTRUCCIÓN --}
 
