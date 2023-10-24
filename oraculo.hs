@@ -14,6 +14,14 @@ data Oraculo = OraculoPred { prediccion :: String}
              | OraculoPreg { pregunta :: String, opciones :: Opciones}
              deriving (Show, Read)
 
+--Definicion de Oraculo como tipo equiparable
+instance Eq Oraculo where
+    (==) OraculoPreg {pregunta = _, opciones = _} OraculoPred {prediccion = _} = False
+    (==) OraculoPred {prediccion = _} OraculoPreg {pregunta = _, opciones = _} = False
+    (==) OraculoPreg {pregunta = p, opciones = _} OraculoPreg {pregunta = q, opciones = _} = p == q
+    (==) OraculoPred {prediccion = p} OraculoPred {prediccion = q} = p == q
+
+
 {-- FUNCIONES DE ACCESO --}
 
 -- Función que devuelve el oráculo correspondiente a la respuesta
@@ -48,8 +56,34 @@ retorna Nothing, en caso contrario retorna un objeto Just [(String, String)] que
 todas las preguntas que deben hacerse desde la raíz del oráculo con el valor de la opcion 
 escogida
 -}
+--FALTA POR HACER 
 
-obtenerCadenaAux :: Oraculo -> String -> [(String, String)] -> Maybe [(String, String)]
-obtenerCadenaAux (OraculoPreg {pregunta = p, opciones = o}) s l
-    | any (\(x, OraculoPred {prediccion = y}) -> y == s) (Map.toList o) = Just $ l ++ [(p, s)] --Encontrada la predicción
-    | otherwise = Nothing --Si la predicción no está entre las opciones (FALTA HACER)
+--Intentando implementar BFS para poder extraer las cadenas
+
+data BFSTreeNode = BFSTreeNode {
+    predecesor :: Oraculo,
+    value :: Oraculo
+}
+
+--       Cola       Visitados     Acumulador     Predecesor - Nodo
+bfs :: [Oraculo] -> [Oraculo] -> [BFSTreeNode] ->  [BFSTreeNode]
+bfs [] _ accum = accum --Si la cola está vacía retornar acumulador
+
+--Caso en el que el siguiente elemento en la cola es una pregunta
+bfs (OraculoPreg {pregunta = p, opciones = o} : q) seen accum = bfs queue seen' accum'
+    where 
+        --Se buscan los "nodos" adyacentes al elemento de la cola
+        neighbors = [y | (_,y) <- Map.toList o]
+        --Se encuentran qué nodos adyacentes no han sido visitados aun
+        notVisitedNeighbors = filter (`notElem` seen) neighbors
+        --Se agregan a la cola
+        queue = q ++ filter (`notElem` q) notVisitedNeighbors
+        --Se agrega el nodo actual a la lista de visitados
+        seen' = seen ++ [OraculoPreg {pregunta = p, opciones = o}]
+        --Para cada uno de los vecinos no visitados se marca el elemento actual como su predecesor
+        accum' = accum ++ [BFSTreeNode {predecesor = OraculoPreg {pregunta = p, opciones = o}, value = y} | y <- notVisitedNeighbors]
+
+bfs (OraculoPred {prediccion = p} : q) seen accum = bfs q seen' accum
+    where
+        --Se marca el nodo como visitado
+        seen' = seen ++ [OraculoPred {prediccion = p}]
