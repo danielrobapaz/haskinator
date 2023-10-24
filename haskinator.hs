@@ -1,23 +1,25 @@
 import Oraculo
 import System.IO
+import System.Exit (exitSuccess)
 
-{-- SERVIDOR --}
 
-{-- CLIENTE --}
+{-- FUNCIONES DEL CLIENTE --}
 
-comenzarHaskinator :: Maybe Oraculo -> Char -> IO ()
-comenzarHaskinator oraculo op
-    | op == 1 = putStrLn "Opción 1"
-    | op == 2 = putStrLn "Opción 2"
-    | op == 3 = putStrLn "Opción 3"
-    | op == 4 = putStrLn "Opción 4"
-    | op == 5 = putStrLn "Opción 5"
-    | op == 6 = putStrLn "Opción 6"
-    | op == 7 = putStrLn "Opción 7"
+comenzarHaskinator :: Char -> IO ()
+comenzarHaskinator op
+    | op == '1' = putStrLn "Opción 1"
+    | op == '2' = putStrLn "Opción 2"
+    | op == '3' = putStrLn "Opción 3"
+    | op == '4' = putStrLn "Opción 4"
+    | op == '5' = putStrLn "Opción 5"
+    | op == '6' = putStrLn "Opción 6"
+    | op == '7' = do
+        putStrLn "¡Hasta luego!"
+        exitSuccess
     | otherwise = putStrLn "Opción inválida"
 
-verificarOpcion :: String -> Bool
-verificarOpcion s = s `elem` ["1", "2", "3", "4", "5", "6", "7"]
+verificarOpcion :: Char -> Bool
+verificarOpcion s = s `elem` ['1', '2', '3', '4', '5', '6', '7']
 
 main :: IO ()
 main = do
@@ -32,9 +34,12 @@ main = do
     putStrLn "#6: Estadísticas"
     putStrLn "#7: Salir"
 
-    opcionEscogida <- getLine
+    opcionEscogida <- getChar
+
+    putStrLn "\n"
+
     if verificarOpcion opcionEscogida
-        then putStrLn "Opción válida"
+        then comenzarHaskinator opcionEscogida
         else putStrLn "Opción inválida.\n" >> main
 
 
