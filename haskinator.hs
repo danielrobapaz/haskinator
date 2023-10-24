@@ -1,4 +1,4 @@
---import Oraculo
+import Oraculo
 import System.IO
 import System.Exit (exitSuccess)
 
