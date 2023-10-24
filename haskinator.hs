@@ -1,21 +1,34 @@
-import Oraculo
+--import Oraculo
 import System.IO
 import System.Exit (exitSuccess)
 
+{-- FUNCIONES AUXILIARES --}
 
-{-- FUNCIONES DEL CLIENTE --}
+cargar :: String -> IO ()
+cargar s = do
+    handle <- openFile s ReadMode
+    contents <- hGetContents handle
+    -- aqui iria algo bien mamalon
+    putStrLn contents
+    hClose handle
 
-comenzarHaskinator :: Char -> IO ()
-comenzarHaskinator op
-    | op == '1' = putStrLn "Opción 1"
-    | op == '2' = putStrLn "Opción 2"
-    | op == '3' = putStrLn "Opción 3"
-    | op == '4' = putStrLn "Opción 4"
-    | op == '5' = putStrLn "Opción 5"
-    | op == '6' = putStrLn "Opción 6"
-    | op == '7' = do
-        putStrLn "¡Hasta luego!"
-        exitSuccess
+-- la idea es que reciba un oraculo jeje
+persistir :: String -> String -> IO()
+persistir f s = 
+    do 
+        appendFile f s -- aqui iria algo bien mamalon
+
+{-- CLIENTE --}
+
+comenzarHaskinator :: Maybe Oraculo -> Char -> IO ()
+comenzarHaskinator oraculo op
+    | op == 1 = putStrLn "Opción 1"
+    | op == 2 = putStrLn "Opción 2"
+    | op == 3 = putStrLn "Opción 3"
+    | op == 4 = putStrLn "Opción 4"
+    | op == 5 = putStrLn "Opción 5"
+    | op == 6 = putStrLn "Opción 6"
+    | op == 7 = putStrLn "Opción 7"
     | otherwise = putStrLn "Opción inválida"
 
 verificarOpcion :: Char -> Bool
@@ -38,8 +51,12 @@ main = do
 
     putStrLn "\n"
 
+    nombreArchivo <- getLine
+    cargar nombreArchivo
+
+    nombreArchivo <- getLine
+    persistir nombreArchivo "holaaaa"
+
     if verificarOpcion opcionEscogida
         then comenzarHaskinator opcionEscogida
-        else putStrLn "Opción inválida.\n" >> main
-
-
+        else putStrLn "Opción inválida.\n" -- >> main
