@@ -1,10 +1,10 @@
-import Oraculo
+--import Oraculo
 import System.IO
 
 {-- SERVIDOR --}
 
 {-- CLIENTE --}
-
+{--
 comenzarHaskinator :: Maybe Oraculo -> Char -> IO ()
 comenzarHaskinator oraculo op
     | op == 1 = putStrLn "Opción 1"
@@ -15,6 +15,21 @@ comenzarHaskinator oraculo op
     | op == 6 = putStrLn "Opción 6"
     | op == 7 = putStrLn "Opción 7"
     | otherwise = putStrLn "Opción inválida"
+--}
+
+cargar :: String -> IO ()
+cargar s = do
+    handle <- openFile s ReadMode
+    contents <- hGetContents handle
+    -- aqui iria algo bien mamalon
+    putStrLn contents
+    hClose handle
+
+-- la idea es que reciba un oraculo jeje
+persistir :: String -> String -> IO()
+persistir f s = 
+    do 
+        appendFile f s -- aqui iria algo bien mamalon
 
 verificarOpcion :: String -> Bool
 verificarOpcion s = s `elem` ["1", "2", "3", "4", "5", "6", "7"]
@@ -35,6 +50,13 @@ main = do
     opcionEscogida <- getLine
     if verificarOpcion opcionEscogida
         then putStrLn "Opción válida"
-        else putStrLn "Opción inválida.\n" >> main
+        else putStrLn "Opción inválida.\n" -- >> main
+
+    nombreArchivo <- getLine
+    cargar nombreArchivo
+
+
+    nombreArchivo <- getLine
+    persistir nombreArchivo "holaaaa"
 
 
