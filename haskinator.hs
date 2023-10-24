@@ -24,16 +24,58 @@ persistir f s =
 -- se ejecuta la función correspondiente.
 comenzarHaskinator :: Maybe Oraculo -> Char -> IO ()
 comenzarHaskinator oraculo op = case op of
-    '1' -> putStrLn "Opción 1"
-    '2' -> putStrLn "Opción 2"
-    '3' -> putStrLn "Opción 3"
-    '4' -> putStrLn "Opción 4"
-    '5' -> putStrLn "Opción 5"
-    '6' -> putStrLn "Opción 6"
+    '1' -> do
+        --nuevoOraculo <- crearOraculo
+        --preguntarOpcion (Just nuevoOraculo)
+        putStrLn "Opción 1:"
+    '2' -> do
+        case oraculo of
+            Nothing -> do
+                putStrLn "No hay oráculo cargado.\n"
+                preguntarOpcion Nothing
+            Just o -> do
+                putStrLn "to do: predecir"
+
+    '3' -> do
+        case oraculo of
+            Nothing -> do
+                putStrLn "No hay oráculo cargado.\n"
+                preguntarOpcion Nothing
+            Just o -> do
+                putStrLn "to do: persistir"
+
+    '4' -> do
+        case oraculo of
+            Nothing -> do
+                putStrLn "No hay oráculo cargado.\n"
+                preguntarOpcion Nothing
+            Just o -> do
+                putStrLn "to do: cargar"
+
+    '5' -> putStrLn "to do: consultar pregunta crucial"
+
+    '6' -> do
+        case oraculo of
+            Nothing -> do
+                putStrLn "No hay oráculo cargado.\n"
+                preguntarOpcion Nothing
+            Just o -> do
+                putStrLn "to do: estadísticas"
+
     '7' -> do
         putStrLn "¡Hasta Luego!"
         exitSuccess
+
     _ -> putStrLn "Opción inválida"
+
+    -- en las opciones 3 y 4, se piden los nombres de los archivos
+    -- eso es dentro de las funciones tho, aquí no
+    
+    {--nombreArchivo <- getLine
+    cargar nombreArchivo
+
+    nombreArchivo <- getLine
+    persistir nombreArchivo "holaaaa"--}
 
 verificarOpcion :: Char -> Bool
 verificarOpcion s = s `elem` ['1', '2', '3', '4', '5', '6', '7']
@@ -54,12 +96,6 @@ preguntarOpcion oraculo = do
     opcionEscogida <- getChar
 
     putStrLn "\n"
-
-    nombreArchivo <- getLine
-    cargar nombreArchivo
-
-    nombreArchivo <- getLine
-    persistir nombreArchivo "holaaaa"
 
     if verificarOpcion opcionEscogida
         then comenzarHaskinator oraculo opcionEscogida
