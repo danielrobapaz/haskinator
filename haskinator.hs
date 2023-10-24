@@ -20,25 +20,28 @@ persistir f s =
 
 {-- CLIENTE --}
 
-{--comenzarHaskinator :: Maybe Oraculo -> Char -> IO ()
-comenzarHaskinator oraculo op
-    | op == 1 = putStrLn "Opción 1"
-    | op == 2 = putStrLn "Opción 2"
-    | op == 3 = putStrLn "Opción 3"
-    | op == 4 = putStrLn "Opción 4"
-    | op == 5 = putStrLn "Opción 5"
-    | op == 6 = putStrLn "Opción 6"
-    | op == 7 = putStrLn "Opción 7"
-    | otherwise = putStrLn "Opción inválida"
---}
+-- Dependiendo de la opción escogida por el usuario,
+-- se ejecuta la función correspondiente.
+comenzarHaskinator :: Maybe Oraculo -> Char -> IO ()
+comenzarHaskinator oraculo op = case op of
+    '1' -> putStrLn "Opción 1"
+    '2' -> putStrLn "Opción 2"
+    '3' -> putStrLn "Opción 3"
+    '4' -> putStrLn "Opción 4"
+    '5' -> putStrLn "Opción 5"
+    '6' -> putStrLn "Opción 6"
+    '7' -> do
+        putStrLn "¡Hasta Luego!"
+        exitSuccess
+    _ -> putStrLn "Opción inválida"
 
 verificarOpcion :: Char -> Bool
 verificarOpcion s = s `elem` ['1', '2', '3', '4', '5', '6', '7']
 
-main :: IO ()
-main = do
-    putStrLn "Bienvenido a Haskinator!"
-
+-- Presenta el cliente y se encarga de pedir al usuario
+-- que seleccione una de las opciones disponibles.
+preguntarOpcion :: Maybe Oraculo -> IO ()
+preguntarOpcion oraculo = do
     putStrLn "Selecciona una de las siguientes opciones:\n"
     putStrLn "#1: Crear un nuevo oráculo"
     putStrLn "#2: Predecir"
@@ -59,6 +62,10 @@ main = do
     persistir nombreArchivo "holaaaa"
 
     if verificarOpcion opcionEscogida
-        --then comenzarHaskinator opcionEscogida
-        then putStrLn "Opción válida.\n"
+        then comenzarHaskinator oraculo opcionEscogida
         else putStrLn "Opción inválida.\n" -- >> main
+
+main :: IO ()
+main = do
+    putStrLn "Bienvenido a Haskinator!"
+    preguntarOpcion Nothing
