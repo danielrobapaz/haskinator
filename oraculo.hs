@@ -32,4 +32,24 @@ obtenerCadena (OraculoPreg p o) s =
 
 -- Recibe un string y devuelve un oráculo únicamente con ese string
 crearOraculo :: String -> Oraculo
-crearOraculo = OraculoPred
+crearOraculo s 
+    | last s == '?' = OraculoPreg {pregunta = s, opciones = Map.empty}
+    | otherwise = OraculoPred {prediccion = s}
+
+-- recibe una lista de strings, una de oráculos y un string,
+-- devuelve un oráculo del tipo pregunta con el string y las opciones
+ramificar :: [String] -> [Oraculo] -> String -> Oraculo
+ramificar sl ol s = OraculoPreg {pregunta = s, opciones = Map.fromList $ zip sl ol}
+
+{-
+Recibe un oraculo y una cadena de caracteres que representa una predicción. Retorna un valor
+de tipo Maybe [(String, String)]. Si la predicción suministrada no pertenece al oráculo 
+retorna Nothing, en caso contrario retorna un objeto Just [(String, String)] que representa
+todas las preguntas que deben hacerse desde la raíz del oráculo con el valor de la opcion 
+escogida
+-}
+
+obtenerCadenaAux :: Oraculo -> String -> [(String, String)] -> Maybe [(String, String)]
+obtenerCadenaAux (OraculoPreg {pregunta = p, opciones = o}) s l
+    | any (\(x, OraculoPred {prediccion = y}) -> y == s) (Map.toList o) = Just $ l ++ [(p, s)] --Encontrada la predicción
+    | otherwise = Nothing --Si la predicción no está entre las opciones (FALTA HACER)
