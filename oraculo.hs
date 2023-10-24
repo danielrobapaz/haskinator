@@ -1,3 +1,9 @@
+module Oraculo
+    (crearOraculo,
+    respuesta,
+    Oraculo(..))
+where
+
 import qualified Data.Map as Map
     
 {-- TIPOS DE DATOS --}
@@ -27,7 +33,3 @@ obtenerCadena (OraculoPreg p o) s =
 -- Recibe un string y devuelve un oráculo únicamente con ese string
 crearOraculo :: String -> Oraculo
 crearOraculo = OraculoPred
-
--- recibe una lista de strings, una de oráculos y un string,
--- devuelve un oráculo del tipo pregunta con el string y las opciones
-ramificar :: [String] -> [Oraculo] -> String -> Oraculo
