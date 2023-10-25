@@ -3,20 +3,29 @@ import System.IO
 import System.Exit (exitSuccess)
 
 {-- FUNCIONES AUXILIARES --}
+procesoPrediccion :: Oraculo -> IO ()
+procesoPrediccion oraculo = case oraculo of
+    OraculoPred pred -> do 
+        putStrLn $ "Mi prediccion es: " ++ pred ++ "!!!"
+        putStrLn "Es correcta mi prediccion? (SI|NO)"
+        respuestaPrediccion <- getLine
 
-cargar :: String -> IO ()
-cargar s = do
-    handle <- openFile s ReadMode
-    contents <- hGetContents handle
-    -- aqui iria algo bien mamalon
-    putStrLn contents
-    hClose handle
+        case respuestaPrediccion of 
+            "SI" -> do 
+                putStrLn "He acertado tu prediccion :D"
 
--- la idea es que reciba un oraculo jeje
-persistir :: String -> String -> IO()
-persistir f s = 
-    do 
-        appendFile f s -- aqui iria algo bien mamalon
+            "NO" -> do
+                putStrLn "Dime la respuesta correcta: "
+                respuestaCorrecta <- getLine
+
+                putStrLn "Dime la pregunta que la distinga de la prediccion: "
+                preguntaDistingue <- getLine
+
+                putStrLn "Dime la opcion que corresponde a la respuesta equivocada: "
+
+    OraculoPreg preg opc ->
+        putStrLn $ "Mi pregunta es: " ++ preg
+
 
 {-- CLIENTE --}
 
@@ -37,7 +46,9 @@ comenzarHaskinator oraculo op = case op of
                 preguntarOpcion Nothing
             Just o -> do
                 putStrLn "to do: predecir"
+                procesoPrediccion o
                 preguntarOpcion $ Just o
+
     '3' -> do -- persistir
         case oraculo of
             Nothing -> do
