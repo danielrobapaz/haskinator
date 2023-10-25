@@ -1,6 +1,7 @@
 module Oraculo
     (crearOraculo,
     respuesta,
+    readOraculo,
     Oraculo(..))
 where
 
@@ -46,6 +47,10 @@ crearOraculo s = OraculoPred s
 -- devuelve un oráculo del tipo pregunta con el string y las opciones
 ramificar :: [String] -> [Oraculo] -> String -> Oraculo
 ramificar sl ol s = OraculoPreg {pregunta = s, opciones = Map.fromList $ zip sl ol}
+
+{-- INSTANCIAS --}
+readOraculo :: String -> Oraculo
+readOraculo s = read s :: Oraculo 
 
 {-
 Recibe un oraculo y una cadena de caracteres que representa una predicción. Retorna un valor
