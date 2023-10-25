@@ -25,9 +25,10 @@ persistir f s =
 comenzarHaskinator :: Maybe Oraculo -> Char -> IO ()
 comenzarHaskinator oraculo op = case op of
     '1' -> do
-        --nuevoOraculo <- crearOraculo
-        --preguntarOpcion (Just nuevoOraculo)
-        putStrLn "Opción 1:"
+        putStrLn "Ingrese una prediccion: "
+        prediccionUsuario <- getLine
+
+        preguntarOpcion (Just (crearOraculo prediccionUsuario))
     '2' -> do
         case oraculo of
             Nothing -> do
@@ -66,7 +67,9 @@ comenzarHaskinator oraculo op = case op of
         putStrLn "¡Hasta Luego!"
         exitSuccess
 
-    _ -> putStrLn "Opción inválida"
+    _ -> do 
+        putStrLn "Opción inválida"
+        preguntarOpcion Nothing
 
     -- en las opciones 3 y 4, se piden los nombres de los archivos
     -- eso es dentro de las funciones tho, aquí no
