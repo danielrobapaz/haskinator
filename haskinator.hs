@@ -2,6 +2,31 @@ import Oraculo
 import System.IO
 import System.Exit (exitSuccess)
 
+{-- FUNCIONES DE CONSTRUCCIÓN --}
+
+-- Pide al usuario el nombre de un archivo y crea
+-- un nuevo oráculo con la información del mismo.
+cargar :: IO Oraculo
+cargar = do
+    putStrLn "Ingrese el nombre del archivo: "
+    nombreArchivo <- getLine
+
+    contenido <- readFile nombreArchivo
+
+    return $ readOraculo contenido
+
+-- Pide al usuario el nombre de un archivo para
+-- guardar el oráculo actual.
+persistir :: Oraculo -> IO Oraculo
+persistir oraculo = do
+    putStrLn "Ingrese el nombre del archivo: "
+    nombreArchivo <- getLine
+
+    -- escribimos el archivo
+    writeFile nombreArchivo (show oraculo)
+
+    return oraculo
+
 {-- FUNCIONES AUXILIARES --}
 procesoPrediccion :: Oraculo -> IO ()
 procesoPrediccion oraculo = case oraculo of
@@ -55,23 +80,17 @@ comenzarHaskinator oraculo op = case op of
                 putStrLn "No hay oráculo cargado.\n"
                 preguntarOpcion Nothing
             Just o -> do
-                putStrLn "Ingrese el nombre del archivo: "
-                nombreArchivo <- getLine
-
-                 -- escribimos el archivo
-                writeFile nombreArchivo (show o)
-
+                o <- persistir o
+                putStrLn "Oraculo persistido exitosamente.\n"
                 preguntarOpcion $ Just o
 
     '4' -> do -- cargar
-        case oraculo of
-            Nothing -> do
-                putStrLn "No hay oráculo cargado.\n"
-                preguntarOpcion Nothing
-            Just o -> do
-                putStrLn "to do: cargar"
+        o <- cargar
+        putStrLn "Oraculo cargado exitosamente.\n"
+        preguntarOpcion $ Just o
 
-    '5' -> putStrLn "to do: consultar pregunta crucial"
+    '5' -> do
+        putStrLn "to do: consultar pregunta crucial"
 
     '6' -> do
         case oraculo of
@@ -81,11 +100,11 @@ comenzarHaskinator oraculo op = case op of
             Just o -> do
                 putStrLn "to do: estadísticas"
 
-    '7' -> do
+    '7' -> do -- salir
         putStrLn "¡Hasta Luego!"
         exitSuccess
 
-    _ -> do 
+    _ -> do -- opción inválida
         putStrLn "Opción inválida"
         preguntarOpcion Nothing
 
