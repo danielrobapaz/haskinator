@@ -24,28 +24,35 @@ persistir f s =
 -- se ejecuta la función correspondiente.
 comenzarHaskinator :: Maybe Oraculo -> Char -> IO ()
 comenzarHaskinator oraculo op = case op of
-    '1' -> do
+    '1' -> do -- crear oraculo
         putStrLn "Ingrese una prediccion: "
         prediccionUsuario <- getLine
 
         preguntarOpcion (Just (crearOraculo prediccionUsuario))
-    '2' -> do
+
+    '2' -> do -- predecir
         case oraculo of
             Nothing -> do
                 putStrLn "No hay oráculo cargado.\n"
                 preguntarOpcion Nothing
             Just o -> do
                 putStrLn "to do: predecir"
-
-    '3' -> do
+                preguntarOpcion $ Just o
+    '3' -> do -- persistir
         case oraculo of
             Nothing -> do
                 putStrLn "No hay oráculo cargado.\n"
                 preguntarOpcion Nothing
             Just o -> do
-                putStrLn "to do: persistir"
+                putStrLn "Ingrese el nombre del archivo: "
+                nombreArchivo <- getLine
 
-    '4' -> do
+                 -- escribimos el archivo
+                writeFile nombreArchivo (show o)
+
+                preguntarOpcion $ Just o
+
+    '4' -> do -- cargar
         case oraculo of
             Nothing -> do
                 putStrLn "No hay oráculo cargado.\n"
@@ -71,14 +78,6 @@ comenzarHaskinator oraculo op = case op of
         putStrLn "Opción inválida"
         preguntarOpcion Nothing
 
-    -- en las opciones 3 y 4, se piden los nombres de los archivos
-    -- eso es dentro de las funciones tho, aquí no
-    
-    {--nombreArchivo <- getLine
-    cargar nombreArchivo
-
-    nombreArchivo <- getLine
-    persistir nombreArchivo "holaaaa"--}
 
 verificarOpcion :: Char -> Bool
 verificarOpcion s = s `elem` ['1', '2', '3', '4', '5', '6', '7']
@@ -97,7 +96,6 @@ preguntarOpcion oraculo = do
     putStrLn "#7: Salir"
 
     opcionEscogida <- getChar
-
     putStrLn "\n"
 
     if verificarOpcion opcionEscogida
@@ -106,5 +104,6 @@ preguntarOpcion oraculo = do
 
 main :: IO ()
 main = do
+    hSetBuffering stdin NoBuffering
     putStrLn "Bienvenido a Haskinator!"
     preguntarOpcion Nothing
