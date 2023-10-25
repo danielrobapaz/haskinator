@@ -1,6 +1,7 @@
 import Oraculo
 import System.IO
 import System.Exit (exitSuccess)
+import qualified Data.Map as Map
 
 {-- FUNCIONES DE CONSTRUCCIÓN --}
 
@@ -28,30 +29,78 @@ persistir oraculo = do
     return oraculo
 
 {-- FUNCIONES AUXILIARES --}
-procesoPrediccion :: Oraculo -> IO ()
-procesoPrediccion oraculo = case oraculo of
+
+predecir :: Oraculo -> IO Oraculo
+predecir oraculo = case oraculo of
+    -- Llegamos a una predicción:
     OraculoPred pred -> do 
-        putStrLn $ "Mi prediccion es: " ++ pred ++ "!!!"
-        putStrLn "Es correcta mi prediccion? (SI|NO)"
+        putStrLn ("Prediccion: " ++ pred)
+        putStrLn "Si / No"
         respuestaPrediccion <- getLine
 
         case respuestaPrediccion of 
-            "SI" -> do 
+            "Si" -> do 
                 putStrLn "He acertado tu prediccion :D"
+                return oraculo
 
-            "NO" -> do
-                putStrLn "Dime la respuesta correcta: "
+            "No" -> do
+                putStrLn "¡He fallado! ¿Cuál era la respuesta correcta?"
                 respuestaCorrecta <- getLine
 
-                putStrLn "Dime la pregunta que la distinga de la prediccion: "
+                putStrLn ("¿Qué pregunta distingue a " ++ respuestaCorrecta ++ " de las otras opciones?")
                 preguntaDistingue <- getLine
 
-                putStrLn "Dime la opcion que corresponde a la respuesta equivocada: "
+                putStrLn ("¿Cuál es la respuesta a \"" ++ preguntaDistingue ++ "\" para" ++ respuestaCorrecta ++ "?")
+                opcionRespuestaCorr <- getLine
 
-    OraculoPreg preg opc ->
+                putStrLn ("¿Cuál es la respuesta a \"" ++ preguntaDistingue ++ "\" para" ++ pred ++ "?")
+                opcionRespuestaIncorrecta <- getLine
+
+                let predIncorrecta = OraculoPred pred
+                let predCorrecta = OraculoPred respuestaCorrecta
+                --let oraculoNuevo = OraculoPreg preguntaDistingue (Map.fromList [(opcionRespuestaCorr, predCorrecta), (opcionRespuestaIncorrecta, predIncorrecta)])
+
+                let oraculoNuevo = ramificar [opcionRespuestaIncorrecta, opcionRespuestaCorr] [predIncorrecta, predCorrecta] preguntaDistingue
+                return oraculoNuevo
+
+            _ -> do
+                putStrLn "Opcion inválida."
+                return oraculo
+
+    -- LLegamos a una pregunta: 
+    OraculoPreg preg opc -> do
         putStrLn $ "Mi pregunta es: " ++ preg
+        putStrLn $ "Las opciones son: " ++ show (Map.keys opc) ++ " o \'NINGUNA\'"
+        putStrLn "Tu respuesta es: "
 
+        respuesta <- getLine
 
+        case respuesta of
+            s -> do 
+                if Map.member s opc
+                then do
+                    predecir (opc Map.! s)
+                else do
+                    putStrLn "Opción inválida. Hasta luego"
+                    exitSuccess
+
+            -- En caso de no ser ninguna de las opciones, se agrega la
+            -- nueva opción a la lista anterior (opc) y tambien la nueva
+            -- prediccion.
+            "NINGUNA" -> do
+                putStrLn "¿Qué opción esperabas"
+                opcion <- getLine
+
+                putStrLn "¿Cuál es la respuesta correcta?"
+                respuesta <- getLine
+
+                let nuevaPrediccion = OraculoPred respuesta
+                    posiblesOpciones = Map.toList opc ++ [(opcion, nuevaPrediccion)]
+                    predicciones = 
+                    nuevoOraculo = ramificar (posiblesOpciones) (predicciones) respuesta
+
+                return nuevoOraculo
+            
 {-- CLIENTE --}
 
 -- Dependiendo de la opción escogida por el usuario,
@@ -70,8 +119,8 @@ comenzarHaskinator oraculo op = case op of
                 putStrLn "No hay oráculo cargado.\n"
                 preguntarOpcion Nothing
             Just o -> do
-                putStrLn "to do: predecir"
-                procesoPrediccion o
+                --procesoPrediccion o
+                predecir o
                 preguntarOpcion $ Just o
 
     '3' -> do -- persistir
