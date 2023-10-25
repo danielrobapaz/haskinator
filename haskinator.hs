@@ -1,8 +1,10 @@
 import Oraculo
 import System.IO
 import System.Exit (exitSuccess)
+import qualified Data.Map as Map
 
 {-- FUNCIONES AUXILIARES --}
+
 procesoPrediccion :: Oraculo -> IO ()
 procesoPrediccion oraculo = case oraculo of
     OraculoPred pred -> do 
@@ -14,6 +16,8 @@ procesoPrediccion oraculo = case oraculo of
             "SI" -> do 
                 putStrLn "He acertado tu prediccion :D"
 
+                preguntarOpcion $ Just oraculo
+
             "NO" -> do
                 putStrLn "Dime la respuesta correcta: "
                 respuestaCorrecta <- getLine
@@ -22,11 +26,34 @@ procesoPrediccion oraculo = case oraculo of
                 preguntaDistingue <- getLine
 
                 putStrLn "Dime la opcion que corresponde a la respuesta equivocada: "
+                opcionRespuestaCorr <- getLine
 
-    OraculoPreg preg opc ->
+                putStrLn "Dime la opcion que lleva a mi prediccion: "
+                opcionRespuestaIncorrecta <- getLine
+
+                let predIncorrecta = OraculoPred pred
+                let predCorrecta = OraculoPred respuestaCorrecta
+                let oraculoNuevo = OraculoPreg preguntaDistingue (Map.fromList [(opcionRespuestaCorr, predCorrecta), (opcionRespuestaIncorrecta, predIncorrecta)])
+
+                preguntarOpcion $ Just oraculoNuevo
+
+    OraculoPreg preg opc -> do
         putStrLn $ "Mi pregunta es: " ++ preg
+        putStrLn $ "Las opciones son: " ++ show (Map.keys opc) ++ " o \'NINGUNA\'"
+        putStrLn "Tu respuesta es: "
 
+        respuesta <- getLine
 
+        case respuesta of
+            s -> do 
+                case Map.member s opc of 
+                    True -> do 
+                        procesoPrediccion (opc Map.! s)
+                    False -> do
+                        putStrLn "Opcion invalida, Hasta luego"
+                        exitSuccess
+            
+            
 {-- CLIENTE --}
 
 -- Dependiendo de la opción escogida por el usuario,
