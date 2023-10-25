@@ -6,6 +6,7 @@ module Oraculo
 where
 
 import qualified Data.Map as Map
+import Data.Maybe
     
 {-- TIPOS DE DATOS --}
 
@@ -59,34 +60,74 @@ retorna Nothing, en caso contrario retorna un objeto Just [(String, String)] que
 todas las preguntas que deben hacerse desde la raíz del oráculo con el valor de la opcion 
 escogida
 -}
---FALTA POR HACER 
+obtenerCadena :: Oraculo -> String -> Maybe [(String, String)]
+obtenerCadena orac predict = do
+    let bfsTree = bfs [BFSTreeNode {predecesor = Nothing, value = orac}] [] []
+    let targetNodeSingleton = filter (`nodeIsPrediction` predict) bfsTree
+    if null targetNodeSingleton then
+        Nothing
+    else
+        do
+            let pathToNode = encontrarCamino $ head targetNodeSingleton
+            Just $ map (\(a, b) -> (pregunta a, fromJust $ obtenerClave b (opciones a))) pathToNode
+
+nodeIsPrediction :: BFSTreeNode -> String -> Bool
+nodeIsPrediction (BFSTreeNode {value = node}) s =
+    case node of
+        OraculoPred {prediccion = p} -> p == s
+        OraculoPreg {pregunta = _, opciones = _} -> False
+
+{-
+Funcion que recibe un valor de un objeto Data.Map y retorna la clave 
+que otorga el valor ingresado al evaluarla en el mapa. Si el valor ingresado
+no existe en el mapa retorna Nothing.
+-}
+obtenerClave :: (Ord k, Eq v) => v -> Map.Map k v -> Maybe k
+obtenerClave value = Map.foldrWithKey (\k v acc -> if v == value then Just k else acc) Nothing
+
+
+{-
+Funcion que recibe el nodo de un arbol BFS y retorna, en forma de pares
+de oraculos, el camino desde el nodo ingresado hasta la raiz del arbol.
+-}
+encontrarCamino :: BFSTreeNode -> [(Oraculo, Oraculo)]
+encontrarCamino predNode = makePath predNode [] where
+    makePath :: BFSTreeNode -> [(Oraculo, Oraculo)] -> [(Oraculo, Oraculo)]
+    makePath node path = if isNothing (predecesor node) then
+        path
+    else makePath (fromJust $ predecesor node) ((value $ fromJust (predecesor node), value node):path)
 
 --Intentando implementar BFS para poder extraer las cadenas
 
 data BFSTreeNode = BFSTreeNode {
-    predecesor :: Oraculo,
+    predecesor :: Maybe BFSTreeNode,
     value :: Oraculo
-}
+} deriving (Show)
 
---       Cola       Visitados     Acumulador     Predecesor - Nodo
-bfs :: [Oraculo] -> [Oraculo] -> [BFSTreeNode] ->  [BFSTreeNode]
+instance Eq BFSTreeNode where
+    (==) p q = predecesor p == predecesor q && value p == value q
+
+--         Cola         Visitados     Acumulador     Predecesor - Nodo
+bfs :: [BFSTreeNode] -> [Oraculo] -> [BFSTreeNode] ->  [BFSTreeNode]
 bfs [] _ accum = accum --Si la cola está vacía retornar acumulador
 
 --Caso en el que el siguiente elemento en la cola es una pregunta
-bfs (OraculoPreg {pregunta = p, opciones = o} : q) seen accum = bfs queue seen' accum'
+bfs (BFSTreeNode {predecesor = pred, value = OraculoPreg {pregunta = preg, opciones = o}} : q) seen accum = bfs queue seen' accum'
     where 
+        --Nodo actualmente bajo procesamiento
+        current = Just BFSTreeNode {predecesor = pred, value = OraculoPreg {pregunta = preg, opciones = o}}
         --Se buscan los "nodos" adyacentes al elemento de la cola
         neighbors = [y | (_,y) <- Map.toList o]
         --Se encuentran qué nodos adyacentes no han sido visitados aun
         notVisitedNeighbors = filter (`notElem` seen) neighbors
         --Se agregan a la cola
-        queue = q ++ filter (`notElem` q) notVisitedNeighbors
+        queue = q ++ filter (`notElem` q) [BFSTreeNode {predecesor = current, value = y} | y <- notVisitedNeighbors]
         --Se agrega el nodo actual a la lista de visitados
-        seen' = seen ++ [OraculoPreg {pregunta = p, opciones = o}]
+        seen' = seen ++ [OraculoPreg {pregunta = preg, opciones = o}]
         --Para cada uno de los vecinos no visitados se marca el elemento actual como su predecesor
-        accum' = accum ++ [BFSTreeNode {predecesor = OraculoPreg {pregunta = p, opciones = o}, value = y} | y <- notVisitedNeighbors]
+        accum' = accum ++ [BFSTreeNode {predecesor = current, value = y} | y <- notVisitedNeighbors]
 
-bfs (OraculoPred {prediccion = p} : q) seen accum = bfs q seen' accum
+bfs (BFSTreeNode{value = OraculoPred {prediccion = p}} : q) seen accum = bfs q seen' accum
     where
         --Se marca el nodo como visitado
         seen' = seen ++ [OraculoPred {prediccion = p}]
