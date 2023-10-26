@@ -1,1 +1,1 @@
-soy un archivo ijijiji
+OraculoPreg {pregunta = "color fav? amarillo?", opciones = fromList [("NO",OraculoPred {prediccion = "azul"}),("SI",OraculoPred {prediccion = "amarillo"}),("talvez",OraculoPred {prediccion = "morado"})]}

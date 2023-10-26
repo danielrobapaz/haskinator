@@ -2,6 +2,7 @@ module Oraculo
     (crearOraculo,
     respuesta,
     readOraculo,
+    ramificar,
     Oraculo(..))
 where
 

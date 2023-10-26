@@ -29,56 +29,74 @@ persistir oraculo = do
     return oraculo
 
 {-- FUNCIONES AUXILIARES --}
+procesoPrediccion :: Oraculo -> IO Oraculo
+procesoPrediccion (OraculoPred pred) = do 
+    putStrLn $ "Mi prediccion es: " ++ pred ++ "!!!"
+    putStrLn "Es correcta mi prediccion? (SI|NO)"
+    respuestaPrediccion <- getLine
 
-procesoPrediccion :: Oraculo -> IO ()
-procesoPrediccion oraculo = case oraculo of
-    OraculoPred pred -> do 
-        putStrLn $ "Mi prediccion es: " ++ pred ++ "!!!"
-        putStrLn "Es correcta mi prediccion? (SI|NO)"
-        respuestaPrediccion <- getLine
+    case respuestaPrediccion of 
+        "SI" -> do 
+            putStrLn "Lo he logrado :DDDD."
+            return $ OraculoPred pred
 
-        case respuestaPrediccion of 
-            "SI" -> do 
-                putStrLn "He acertado tu prediccion :D"
-
-                preguntarOpcion $ Just oraculo
-
-            "NO" -> do
-                putStrLn "Dime la respuesta correcta: "
-                respuestaCorrecta <- getLine
-
-                putStrLn "Dime la pregunta que la distinga de la prediccion: "
-                preguntaDistingue <- getLine
-
-                putStrLn "Dime la opcion que corresponde a la respuesta equivocada: "
-                opcionRespuestaCorr <- getLine
-
-                putStrLn "Dime la opcion que lleva a mi prediccion: "
-                opcionRespuestaIncorrecta <- getLine
-
-                let predIncorrecta = OraculoPred pred
-                let predCorrecta = OraculoPred respuestaCorrecta
-                let oraculoNuevo = OraculoPreg preguntaDistingue (Map.fromList [(opcionRespuestaCorr, predCorrecta), (opcionRespuestaIncorrecta, predIncorrecta)])
-
-                preguntarOpcion $ Just oraculoNuevo
-
-    OraculoPreg preg opc -> do
-        putStrLn $ "Mi pregunta es: " ++ preg
-        putStrLn $ "Las opciones son: " ++ show (Map.keys opc) ++ " o \'NINGUNA\'"
-        putStrLn "Tu respuesta es: "
-
-        respuesta <- getLine
-
-        case respuesta of
-            s -> do 
-                case Map.member s opc of 
-                    True -> do 
-                        procesoPrediccion (opc Map.! s)
-                    False -> do
-                        putStrLn "Opcion invalida, Hasta luego"
-                        exitSuccess
+        "NO" -> do
+            putStrLn "Oh, no DDDD:"
             
-            
+            putStrLn "Dime la respuesta correcta: "
+            respuestaCorrecta <- getLine
+
+            putStrLn "Dime la pregunta que la distinga de la prediccion: "
+            preguntaDistingue <- getLine
+
+            putStrLn "Dime la opcion que corresponde a la respuesta correcta: "
+            opcionRespuestaIncorrecta <- getLine
+
+            putStrLn "Dime la opcion que lleva a mi prediccion: "
+            opcionRespuestaCorr <- getLine
+
+            let opciones = [opcionRespuestaCorr, opcionRespuestaIncorrecta]
+            let oraculos = [(OraculoPred pred), (OraculoPred respuestaCorrecta)]
+
+            return $ ramificar opciones oraculos preguntaDistingue
+
+        _ -> do 
+            putStrLn "Opcion equivocada :((("
+            return $ OraculoPred pred
+
+procesoPrediccion (OraculoPreg preg opc) = do
+    putStrLn preg
+    putStrLn $ "Las opciones son: " ++ show (Map.keys opc) ++ " o \'NINGUNA\'"
+    putStrLn "Tu respuesta es: "
+    respuesta <- getLine
+
+    case respuesta of 
+        "NINGUNA" -> do
+            putStrLn "Cual seria la opciones que esperarias?"
+            nuevaOpc <- getLine
+
+            putStrLn "Cual seria la respuesta correcta?"
+            resp <- getLine
+
+            let nuevasOpciones = Map.insert nuevaOpc (OraculoPred resp) opc
+            let nuevoOraculo = OraculoPreg preg nuevasOpciones
+            return $ nuevoOraculo
+
+        _ -> do 
+            let existeOpcion = Map.member respuesta opc
+
+            case existeOpcion of 
+                False -> do 
+                    putStrLn "Esa opcion no existe :(("
+                    return $ OraculoPreg preg opc
+
+                True -> do
+                    nuevoOraculo <- procesoPrediccion (opc Map.! respuesta)
+                    let opcionesViejas = Map.delete respuesta opc
+                    let opcionesNuevas = Map.insert respuesta nuevoOraculo opcionesViejas 
+                    return $ OraculoPreg preg opcionesNuevas
+                    
+
 {-- CLIENTE --}
 
 -- Dependiendo de la opción escogida por el usuario,
@@ -98,7 +116,8 @@ comenzarHaskinator oraculo op = case op of
                 preguntarOpcion Nothing
             Just o -> do
                 putStrLn "to do: predecir"
-                procesoPrediccion o
+                o <- procesoPrediccion o
+                putStrLn $ show o
                 preguntarOpcion $ Just o
 
     '3' -> do -- persistir
