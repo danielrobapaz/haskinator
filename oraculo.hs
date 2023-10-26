@@ -72,6 +72,11 @@ obtenerCadena orac predict = do
             let pathToNode = encontrarCamino $ head targetNodeSingleton
             Just $ map (\(a, b) -> (pregunta a, fromJust $ obtenerClave b (opciones a))) pathToNode
 
+{-
+Funcion que, dadas dos predicciones, indica la pregunta crucial que llevaria a una
+bifurcacion entre llegar a una respuesta o a la otra tras responderla. Si alguna
+de las predicciones ingresadas no existen en el oraculo retorna Nothing.
+-}
 preguntaCrucial :: Oraculo -> String -> String -> Maybe String
 preguntaCrucial root pred1 pred2 = firstCommonQuestion where
     cadenaPred1 = obtenerCadena root pred1
