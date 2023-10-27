@@ -44,6 +44,30 @@ persistir oraculo = do
 
     return oraculo
 
+
+obtenerOraculos :: Opciones -> [Oraculo]
+obtenerOraculos  = Map.elems
+
+obtenerPredicciones :: Oraculo -> [String]
+obtenerPredicciones (OraculoPred preg) = [preg]
+obtenerPredicciones (OraculoPreg _ opc) = obtenerPrediccionesLista $ obtenerOraculos opc
+    where
+    obtenerPrediccionesLista :: [Oraculo] -> [String]
+    obtenerPrediccionesLista [] = []
+    obtenerPrediccionesLista (h:t) = obtenerPredicciones h ++ obtenerPrediccionesLista t
+
+hayRepetidos :: [String] -> Bool
+hayRepetidos [] = False
+hayRepetidos (h:t) = (h `elem` t) || hayRepetidos t
+
+
+{-
+    Realiza el proceso de prediccion y devuelve el oraculo
+    luego del proceso.
+
+    Si durante el proceso se agerga al oraculo una prediccion repetida,
+    se devuelve el oraculo original
+-}
 procesoPrediccion :: Oraculo -> IO Oraculo
 procesoPrediccion (OraculoPred pred) = do 
     haskinatorHabla
@@ -112,7 +136,16 @@ procesoPrediccion (OraculoPreg preg opc) = do
                     nuevoOraculo <- procesoPrediccion (opc Map.! respuesta)
                     let opcionesViejas = Map.delete respuesta opc
                     let opcionesNuevas = Map.insert respuesta nuevoOraculo opcionesViejas 
-                    return $ OraculoPreg preg opcionesNuevas
+                    let nuevoOraculo = OraculoPreg preg opcionesNuevas
+                    let prediccionesNuevas = obtenerPredicciones nuevoOraculo
+                    
+                    case hayRepetidos prediccionesNuevas of 
+                        True -> do
+                            putStrLn "\n⋆⭒˚｡⋆ No intentes vacilarme, esa prediccion esta repetida.\n"
+                            return $ OraculoPreg preg opc
+
+                        False -> do
+                            return $ nuevoOraculo
                     
 
 {-- CLIENTE --}

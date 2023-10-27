@@ -3,7 +3,8 @@ module Oraculo
     respuesta,
     readOraculo,
     ramificar,
-    Oraculo(..))
+    Oraculo(..),
+    Opciones)
 where
 
 import qualified Data.Map as Map
