@@ -60,13 +60,16 @@ oráculo necesita hacer para llegar a alguna predicción.
 -}
 obtenerEstadisticas :: Oraculo -> (Int, Int, Double)
 obtenerEstadisticas o = case o of
-    OraculoPred _ -> (min, max, avg)
-        where
-            min = minimum $ map (length . encontrarCamino) $ bfs [BFSTreeNode {predecesor = Nothing, value = o}] [] []
-            max = maximum $ map (length . encontrarCamino) $ bfs [BFSTreeNode {predecesor = Nothing, value = o}] [] []
-            avg = fromIntegral (sum $ map (length . encontrarCamino) $ bfs [BFSTreeNode {predecesor = Nothing, value = o}] [] []) / fromIntegral (length $ bfs [BFSTreeNode {predecesor = Nothing, value = o}] [] [])
+    OraculoPreg _ _ -> if null caminos
+                        then (0, 0, 0.0)
+                        else (min, max, avg)
+                    where
+                caminos = bfs [BFSTreeNode {predecesor = Nothing, value = o}] [] []
+                min = minimum $ map (length . encontrarCamino) $ bfs [BFSTreeNode {predecesor = Nothing, value = o}] [] []
+                max = maximum $ map (length . encontrarCamino) $ bfs [BFSTreeNode {predecesor = Nothing, value = o}] [] []
+                avg = fromIntegral (sum $ map (length . encontrarCamino) $ bfs [BFSTreeNode {predecesor = Nothing, value = o}] [] []) / fromIntegral (length $ bfs [BFSTreeNode {predecesor = Nothing, value = o}] [] [])
 
-    OraculoPreg _ _ -> (0, 0, 0.0)
+    OraculoPred _ -> (0, 0, 0.0)
 
 {-
 Recibe un oraculo y una cadena de caracteres que representa una predicción. Retorna un valor
