@@ -3,6 +3,7 @@ module Oraculo
     respuesta,
     readOraculo,
     ramificar,
+    obtenerEstadisticas,
     Oraculo(..),
     Opciones)
 where
@@ -34,12 +35,6 @@ respuesta :: Oraculo -> String -> Oraculo
 respuesta (OraculoPred _) _ = error "No se puede obtener respuesta de una prediccion"
 respuesta (OraculoPreg _ o) s = o Map.! s
 
-{--
-obtenerCadena :: Oraculo -> String -> Maybe [(String, String)]
-obtenerCadena (OraculoPred p) s = 
-obtenerCadena (OraculoPreg p o) s =  
---}
-
 {-- FUNCIONES DE CONSTRUCCIÓN --}
 
 -- Recibe un string y devuelve un oráculo únicamente con ese string
@@ -54,6 +49,24 @@ ramificar sl ol s = OraculoPreg {pregunta = s, opciones = Map.fromList $ zip sl 
 {-- INSTANCIAS --}
 readOraculo :: String -> Oraculo
 readOraculo s = read s :: Oraculo 
+
+{-- FUNCIONES DE INSPECCION --}
+
+{-
+Recibe un oráculo. Devuelve una 3–tupla con los
+siguientes datos:
+El mínimo, máximo y promedio de preguntas que el
+oráculo necesita hacer para llegar a alguna predicción.
+-}
+obtenerEstadisticas :: Oraculo -> (Int, Int, Double)
+obtenerEstadisticas o = case o of
+    OraculoPred _ -> (min, max, avg)
+        where
+            min = minimum $ map (length . encontrarCamino) $ bfs [BFSTreeNode {predecesor = Nothing, value = o}] [] []
+            max = maximum $ map (length . encontrarCamino) $ bfs [BFSTreeNode {predecesor = Nothing, value = o}] [] []
+            avg = fromIntegral (sum $ map (length . encontrarCamino) $ bfs [BFSTreeNode {predecesor = Nothing, value = o}] [] []) / fromIntegral (length $ bfs [BFSTreeNode {predecesor = Nothing, value = o}] [] [])
+
+    OraculoPreg _ _ -> (0, 0, 0.0)
 
 {-
 Recibe un oraculo y una cadena de caracteres que representa una predicción. Retorna un valor
@@ -86,7 +99,6 @@ no existe en el mapa retorna Nothing.
 -}
 obtenerClave :: (Ord k, Eq v) => v -> Map.Map k v -> Maybe k
 obtenerClave value = Map.foldrWithKey (\k v acc -> if v == value then Just k else acc) Nothing
-
 
 {-
 Funcion que recibe el nodo de un arbol BFS y retorna, en forma de pares

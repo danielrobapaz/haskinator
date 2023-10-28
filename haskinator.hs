@@ -195,7 +195,7 @@ comenzarHaskinator oraculo op = case op of
                 putStrLn "Haskinator es muy sabio, pero sin un oráculo cargado no te puede ayudar.\n"
                 preguntarOpcion Nothing
             Just o -> do
-                putStrLn "to do: estadísticas"
+                putStrLn ( show (obtenerEstadisticas o)) >> preguntarOpcion (Just o)
 
     '7' -> do -- salir
         haskinatorHabla
