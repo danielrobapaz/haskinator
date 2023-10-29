@@ -4,9 +4,8 @@ module Oraculo
     readOraculo,
     ramificar,
     obtenerEstadisticas,
-    --obtenerCadena,
-    --obtenerLargoPorPrediccion,
-    --extraerCadena,
+    obtenerCadena,
+    preguntaCrucial,
     Oraculo(..),
     Opciones)
 where

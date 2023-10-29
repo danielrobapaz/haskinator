@@ -2,14 +2,14 @@ OraculoPreg {
     pregunta = "Es un lenguaje de programación?", 
     opciones = fromList 
         [("SI",
-            OraculoPreg {pregunta = "A qué paradigma pertenece?", 
+            OraculoPreg {pregunta = "A que paradigma pertenece?", 
                 opciones = fromList [
                     ("Imperativo",
-                        OraculoPreg {pregunta = "A quién pertenece el lenguaje?", 
+                        OraculoPreg {pregunta = "A quien pertenece el lenguaje?", 
                             opciones = fromList [
                                     ("Oracle",OraculoPred {prediccion = "Java"}),
                                     ("Microsoft",OraculoPred {prediccion = "C#"})
                                     ]}),
                     ("Funcional",OraculoPred {prediccion = "Haskell"}),
-                    ("Logico",OraculoPred {prediccion = "Logico"})]})
+                    ("Logico",OraculoPred {prediccion = "Prolog"})]})
         ,("NO",OraculoPred {prediccion = "HTML"})]}

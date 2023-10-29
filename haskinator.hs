@@ -1,7 +1,13 @@
+-- module Haskinator (
+--     main
+-- ) where
+
 import Oraculo
 import System.IO
+import System.IO.Error (isDoesNotExistError, isPermissionError)
 import System.Exit (exitSuccess)
 import qualified Data.Map as Map
+import Data.Maybe
 
 {-- FUNCIONES AUXILIARES DE TEXTO --}
 regular :: IO ()
@@ -25,23 +31,21 @@ haskinatorHabla = do putStr "\ESC[1;3;34m"
 -- un nuevo oráculo con la información del mismo.
 cargar :: IO Oraculo
 cargar = do
-    putStrLn "Ingrese el nombre del archivo: "
+    putStr "Ingrese el nombre del archivo: "
+    hFlush stdout
     nombreArchivo <- getLine
-
     contenido <- readFile nombreArchivo
-
     return $ readOraculo contenido
 
 -- Pide al usuario el nombre de un archivo para
 -- guardar el oráculo actual.
 persistir :: Oraculo -> IO Oraculo
 persistir oraculo = do
-    putStrLn "Ingrese el nombre del archivo: "
+    putStr "Ingrese el nombre del archivo: "
+    hFlush stdout
     nombreArchivo <- getLine
-
     -- escribimos el archivo
     writeFile nombreArchivo (show oraculo)
-
     return oraculo
 
 
@@ -72,7 +76,8 @@ procesoPrediccion :: Oraculo -> IO Oraculo
 procesoPrediccion (OraculoPred pred) = do 
     haskinatorHabla
     putStrLn $ "⋆⭒˚｡⋆ Adivina adivinador, la respuesta que estás buscando es: " ++ pred ++ "."
-    putStrLn "⋆⭒˚｡⋆ Así que dime, ¿estoy en lo correcto? (SI|NO)"
+    putStr "⋆⭒˚｡⋆ Así que dime, ¿estoy en lo correcto? (SI|NO): "
+    hFlush stdout
     respuestaPrediccion <- getLine
     haskinatorHabla
 
@@ -84,20 +89,24 @@ procesoPrediccion (OraculoPred pred) = do
         "NO" -> do
             putStrLn "\n⋆⭒˚｡⋆ Incluso un ser tan poderoso como yo puede tener momentos de debilidad..."
             
-            putStrLn "⋆⭒˚｡⋆ A ver, joven humano. Dime la respuesta correcta"
+            putStr "⋆⭒˚｡⋆ A ver, joven humano. Dime la respuesta correcta: "
+            hFlush stdout
             respuestaCorrecta <- getLine
 
-            putStrLn "\n⋆⭒˚｡⋆ ¿Y cuál es la pregunta que la distingue de mi predicción?"
+            putStr "\n⋆⭒˚｡⋆ ¿Y cuál es la pregunta que la distingue de mi predicción?: "
+            hFlush stdout
             preguntaDistingue <- getLine
 
-            putStrLn "\n⋆⭒˚｡⋆ ¿Qué opción corresponde a la respuesta correcta?"
+            putStr "\n⋆⭒˚｡⋆ ¿Qué opción corresponde a la respuesta correcta?: "
+            hFlush stdout
             opcionRespuestaIncorrecta <- getLine
 
-            putStrLn "\n⋆⭒˚｡⋆ ¿Cuál es la opción que lleva a mi predicción? No pienso volver a equivocarme frente a un humano..."
+            putStr "\n⋆⭒˚｡⋆ ¿Cuál es la opción que lleva a mi predicción? No pienso volver a equivocarme frente a un humano...: "
+            hFlush stdout
             opcionRespuestaCorr <- getLine
 
             let opciones = [opcionRespuestaCorr, opcionRespuestaIncorrecta]
-            let oraculos = [(OraculoPred pred), (OraculoPred respuestaCorrecta)]
+            let oraculos = [OraculoPred pred, OraculoPred respuestaCorrecta]
 
             return $ ramificar opciones oraculos preguntaDistingue
 
@@ -109,69 +118,72 @@ procesoPrediccion (OraculoPreg preg opc) = do
     haskinatorHabla
     putStrLn preg
     putStrLn $ "\n⋆⭒˚｡⋆ Las posibles respuestas a tu pregunta son: " ++ show (Map.keys opc) ++ " o \'NINGUNA\'"
-    putStrLn "\n⋆⭒˚｡⋆ Así que, humano, ¿cuál es tu respuesta?"
+    putStr "\n⋆⭒˚｡⋆ Así que, humano, ¿cuál es tu respuesta?: "
+    hFlush stdout
     respuesta <- getLine
 
     case respuesta of 
         "NINGUNA" -> do
-            putStrLn "\n⋆⭒˚｡⋆ Cuales serían la opciones que esperarías?"
+            putStr "\n⋆⭒˚｡⋆ Cuales sería la opción que esperarías?: "
+            hFlush stdout
             nuevaOpc <- getLine
 
-            putStrLn "\n ⋆⭒˚｡⋆ Cuál sería la respuesta correcta?"
+            putStr "\n ⋆⭒˚｡⋆ Cuál sería la respuesta correcta?: "
+            hFlush stdout
             resp <- getLine
 
             let nuevasOpciones = Map.insert nuevaOpc (OraculoPred resp) opc
             let nuevoOraculo = OraculoPreg preg nuevasOpciones
-            return $ nuevoOraculo
+            return nuevoOraculo
 
         _ -> do 
             let existeOpcion = Map.member respuesta opc
 
-            case existeOpcion of 
-                False -> do 
-                    putStrLn "\n⋆⭒˚｡⋆ No intentes vacilarme, podré ser viejo pero sé que esa opción no está entre las que te dí.\n"
-                    return $ OraculoPreg preg opc
-
-                True -> do
+            if existeOpcion then
+                do
                     nuevoOraculo <- procesoPrediccion (opc Map.! respuesta)
                     let opcionesViejas = Map.delete respuesta opc
                     let opcionesNuevas = Map.insert respuesta nuevoOraculo opcionesViejas 
                     let nuevoOraculo = OraculoPreg preg opcionesNuevas
                     let prediccionesNuevas = obtenerPredicciones nuevoOraculo
                     
-                    case hayRepetidos prediccionesNuevas of 
-                        True -> do
+                    if hayRepetidos prediccionesNuevas then
+                        do
                             putStrLn "\n⋆⭒˚｡⋆ No intentes vacilarme, esa prediccion esta repetida.\n"
                             return $ OraculoPreg preg opc
-
-                        False -> do
+                        else
                             return $ nuevoOraculo
+                            
+            else
+                do
+                    putStrLn "\n⋆⭒˚｡⋆ No intentes vacilarme, podré ser viejo pero sé que esa opción no está entre las que te dí.\n"
+                    return $ OraculoPreg preg opc
+                    
                     
 
 {-- CLIENTE --}
 
 -- Dependiendo de la opción escogida por el usuario,
 -- se ejecuta la función correspondiente.
-comenzarHaskinator :: Maybe Oraculo -> Char -> IO ()
+comenzarHaskinator :: Maybe Oraculo -> String -> IO ()
 comenzarHaskinator oraculo op = case op of
 
-    '1' -> do -- crear oraculo
+    "1" -> do -- crear oraculo
         putStrLn "Ingrese una predicción"
         prediccionUsuario <- getLine
         putStrLn "El nuevo oráculo ha sido creado.\n"
         preguntarOpcion (Just (crearOraculo prediccionUsuario))
 
-    '2' -> do -- predecir
+    "2" -> do -- predecir
         case oraculo of
             Nothing -> do
                 putStrLn "Haskinator es muy sabio, pero sin un oráculo cargado no te puede ayudar.\n"
                 preguntarOpcion Nothing
             Just o -> do
                 o <- procesoPrediccion o
-                putStrLn $ show o
                 preguntarOpcion $ Just o
 
-    '3' -> do -- persistir
+    "3" -> do -- persistir
         case oraculo of
             Nothing -> do
                 putStrLn "Haskinator es muy sabio, pero sin un oráculo cargado no te puede ayudar.\n"
@@ -181,15 +193,51 @@ comenzarHaskinator oraculo op = case op of
                 putStrLn "Oraculo persistido exitosamente.\n"
                 preguntarOpcion $ Just o
 
-    '4' -> do -- cargar
+    "4" -> do -- cargar
         o <- cargar
         putStrLn "Oraculo cargado exitosamente.\n"
         preguntarOpcion $ Just o
 
-    '5' -> do
-        putStrLn "to do: consultar pregunta crucial"
+    "5" -> do
+        case oraculo of
+            Nothing -> do
+                putStrLn "Haskinator es muy sabio, pero sin un oráculo cargado no te puede ayudar.\n"
+                preguntarOpcion Nothing
+            Just o -> do
+                putStr "¿Para cuáles dos predicciones te gustaría hallar la pregunta crucial?: "
+                hFlush stdout
+                predictionsInput <- getLine
+                let predictions = words predictionsInput
+                if length predictions /= 2 then
+                    do
+                        putStrLn "No, no. Con calma humano, vayamos de dos predicciones a la vez ;)"
+                        preguntarOpcion $ Just o
+                else
+                    do
+                        let crucialQuestion = preguntaCrucial o (head predictions) (last predictions)
+                        case crucialQuestion of
+                            Nothing -> do
+                                haskinatorHabla
+                                putStrLn "Hmmm... Parece que alguna de las predicciones que ingresaste no existen. ¿Tal vez intenta de nuevo?\n"
+                                preguntarOpcion $ Just o
+                            Just question -> do
+                                haskinatorHabla
+                                putStrLn "La pregunta que separa tu destino entre llegar a: "
+                                yellow
+                                putStrLn $ "\t" ++ show (head predictions)
+                                haskinatorHabla
+                                putStrLn "o a:"
+                                yellow
+                                putStrLn $ "\t" ++ show (last predictions)
+                                haskinatorHabla
+                                putStrLn "es:"
+                                yellow
+                                putStrLn $ "\t" ++ show question
+                                putStrLn "\n"
+                                preguntarOpcion $ Just o
 
-    '6' -> do
+
+    "6" -> do
         case oraculo of
             Nothing -> do
                 putStrLn "Haskinator es muy sabio, pero sin un oráculo cargado no te puede ayudar.\n"
@@ -197,9 +245,10 @@ comenzarHaskinator oraculo op = case op of
             Just o -> do
                 putStrLn ( show (obtenerEstadisticas o)) >> preguntarOpcion (Just o)
 
-    '7' -> do -- salir
+    "7" -> do -- salir
         haskinatorHabla
         putStrLn "⋆⭒˚｡⋆ Ten cuidado en tu regreso hacia la civilización, muchos misterios se esconden en el bosque."
+        regular
         exitSuccess
 
     _ -> do -- opción inválida
@@ -209,8 +258,8 @@ comenzarHaskinator oraculo op = case op of
         preguntarOpcion Nothing
 
 
-verificarOpcion :: Char -> Bool
-verificarOpcion s = s `elem` ['1', '2', '3', '4', '5', '6', '7']
+verificarOpcion :: String -> Bool
+verificarOpcion s = s `elem` ["1", "2", "3", "4", "5", "6", "7"]
 
 -- Presenta el cliente y se encarga de pedir al usuario
 -- que seleccione una de las opciones disponibles.
@@ -232,7 +281,9 @@ preguntarOpcion oraculo = do
 
     italic
 
-    opcionEscogida <- getChar
+    putStr "Opción a escoger: "
+    hFlush stdout
+    opcionEscogida <- getLine
     putStrLn "\n"
 
     if verificarOpcion opcionEscogida
@@ -243,7 +294,6 @@ preguntarOpcion oraculo = do
 
 main :: IO ()
 main = do
-    hSetBuffering stdin NoBuffering
     italic
     putStrLn "En las profundidades del bosque de los mil y un monads,"
     putStrLn "en la apartada y escondida cuna del gran rio Curry,"
