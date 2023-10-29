@@ -2,5 +2,5 @@ module Main (main) where
 
 import qualified Haskinator as H
 
-main = do
+main :: IO () = do
     H.main
