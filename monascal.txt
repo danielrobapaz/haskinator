@@ -1,5 +1,5 @@
 OraculoPreg {
-    pregunta = "Es un lenguaje de programación?", 
+    pregunta = "Es un lenguaje de programacion?", 
     opciones = fromList 
         [("SI",
             OraculoPreg {pregunta = "A que paradigma pertenece?", 

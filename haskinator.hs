@@ -1,6 +1,6 @@
--- module Haskinator (
---     main
--- ) where
+module Haskinator (
+    main
+) where
 
 import Oraculo
 import System.IO
@@ -75,7 +75,7 @@ hayRepetidos (h:t) = (h `elem` t) || hayRepetidos t
 procesoPrediccion :: Oraculo -> IO Oraculo
 procesoPrediccion (OraculoPred pred) = do 
     haskinatorHabla
-    putStrLn $ "⋆⭒˚｡⋆ Adivina adivinador, la respuesta que estás buscando es: " ++ pred ++ "."
+    putStrLn $ "\n⋆⭒˚｡⋆ Adivina adivinador, la respuesta que estás buscando es: " ++ pred ++ "."
     putStr "⋆⭒˚｡⋆ Así que dime, ¿estoy en lo correcto? (SI|NO): "
     hFlush stdout
     respuestaPrediccion <- getLine
@@ -116,9 +116,9 @@ procesoPrediccion (OraculoPred pred) = do
 
 procesoPrediccion (OraculoPreg preg opc) = do
     haskinatorHabla
-    putStrLn preg
-    putStrLn $ "\n⋆⭒˚｡⋆ Las posibles respuestas a tu pregunta son: " ++ show (Map.keys opc) ++ " o \'NINGUNA\'"
-    putStr "\n⋆⭒˚｡⋆ Así que, humano, ¿cuál es tu respuesta?: "
+    putStrLn $ "\n⋆⭒˚｡⋆ Pregunto: " ++ preg
+    putStrLn $ "⋆⭒˚｡⋆ Las posibles respuestas a tu pregunta son: " ++ show (Map.keys opc) ++ " o \'NINGUNA\'"
+    putStr "⋆⭒˚｡⋆ Así que, humano, ¿cuál es tu respuesta?: "
     hFlush stdout
     respuesta <- getLine
 
@@ -180,6 +180,8 @@ comenzarHaskinator oraculo op = case op of
                 putStrLn "Haskinator es muy sabio, pero sin un oráculo cargado no te puede ayudar.\n"
                 preguntarOpcion Nothing
             Just o -> do
+                haskinatorHabla
+                putStrLn "\n⋆⭒˚｡⋆ De acuerdo... Empecemos a jugar humano ;)\n"
                 o <- procesoPrediccion o
                 preguntarOpcion $ Just o
 
@@ -243,7 +245,22 @@ comenzarHaskinator oraculo op = case op of
                 putStrLn "Haskinator es muy sabio, pero sin un oráculo cargado no te puede ayudar.\n"
                 preguntarOpcion Nothing
             Just o -> do
-                putStrLn ( show (obtenerEstadisticas o)) >> preguntarOpcion (Just o)
+                let (min, max, avg) = obtenerEstadisticas o
+                haskinatorHabla
+                putStrLn "⋆⭒˚｡⋆ Efectivamente... Este oráculo es muy interesante. Te diré algunas cosas sobre él...\n"
+                putStrLn "Longitud de la rama de predicción más corta:"
+                yellow
+                putStrLn $ "\t" ++ show min
+                haskinatorHabla
+                putStrLn "Longitud de la rama de predicción más larga:"
+                yellow
+                putStrLn $ "\t" ++ show max
+                haskinatorHabla
+                putStrLn "Longitud promedio de ramas de predicción:"
+                yellow
+                putStrLn $ "\t" ++ show avg ++ "\n"
+
+                preguntarOpcion $ Just o
 
     "7" -> do -- salir
         haskinatorHabla
@@ -284,7 +301,6 @@ preguntarOpcion oraculo = do
     putStr "Opción a escoger: "
     hFlush stdout
     opcionEscogida <- getLine
-    putStrLn "\n"
 
     if verificarOpcion opcionEscogida
         then comenzarHaskinator oraculo opcionEscogida
