@@ -73,6 +73,35 @@ obtenerCadena orac predict = do
             let pathToNode = encontrarCamino $ head targetNodeSingleton
             Just $ map (\(a, b) -> (pregunta a, fromJust $ obtenerClave b (opciones a))) pathToNode
 
+{-
+Funcion que, dadas dos predicciones, indica la pregunta crucial que llevaria a una
+bifurcacion entre llegar a una respuesta o a la otra tras responderla. Si alguna
+de las predicciones ingresadas no existen en el oraculo retorna Nothing.
+-}
+preguntaCrucial :: Oraculo -> String -> String -> Maybe String
+preguntaCrucial root pred1 pred2 = firstCommonQuestion where
+    cadenaPred1 = obtenerCadena root pred1
+    cadenaPred2 = obtenerCadena root pred2
+    firstCommonQuestion = if isNothing cadenaPred1 || isNothing cadenaPred2 then
+        Nothing
+    else
+        do
+        Just $ preguntaCrucialAux (reverse lista1) (reverse lista2) where
+            justCadPred1 = fromJust cadenaPred1
+            justCadPred2 = fromJust cadenaPred2
+            (lista1, lista2) = if length justCadPred1 > length justCadPred2 then
+                (take (length justCadPred2) justCadPred1, justCadPred2)
+            else
+                (justCadPred1, take (length justCadPred1) justCadPred2)
+            
+            preguntaCrucialAux :: [(String, String)] -> [(String, String)] -> String
+            preguntaCrucialAux ((p1, q1): t1) ((p2, q2): t2) = if p1 == p2 then
+                p1
+            else
+                preguntaCrucialAux t1 t2
+
+
+
 nodeIsPrediction :: BFSTreeNode -> String -> Bool
 nodeIsPrediction (BFSTreeNode {value = node}) s =
     case node of
