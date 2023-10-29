@@ -4,6 +4,9 @@ module Oraculo
     readOraculo,
     ramificar,
     obtenerEstadisticas,
+    --obtenerCadena,
+    --obtenerLargoPorPrediccion,
+    --extraerCadena,
     Oraculo(..),
     Opciones)
 where
@@ -52,21 +55,49 @@ readOraculo s = read s :: Oraculo
 
 {-- FUNCIONES DE INSPECCION --}
 
+obtenerPredicciones :: Oraculo -> [String]
+obtenerPredicciones (OraculoPred preg) = [preg]
+obtenerPredicciones (OraculoPreg _ opc) = obtenerPrediccionesLista $ obtenerOraculos opc
+    where
+    obtenerOraculos  = Map.elems
+    obtenerPrediccionesLista :: [Oraculo] -> [String]
+    obtenerPrediccionesLista [] = []
+    obtenerPrediccionesLista (h:t) = obtenerPredicciones h ++ obtenerPrediccionesLista t
+
 {-
 Recibe un oráculo. Devuelve una 3–tupla con los
 siguientes datos:
 El mínimo, máximo y promedio de preguntas que el
 oráculo necesita hacer para llegar a alguna predicción.
+
+Si recibe Oraculo tipo predicción retorna 0 para todos los valores.
 -}
 obtenerEstadisticas :: Oraculo -> (Int, Int, Double)
 obtenerEstadisticas o = case o of
-    OraculoPred _ -> (min, max, avg)
+    OraculoPreg _ _ -> (min, max, avg)
         where
-            min = minimum $ map (length . encontrarCamino) $ bfs [BFSTreeNode {predecesor = Nothing, value = o}] [] []
-            max = maximum $ map (length . encontrarCamino) $ bfs [BFSTreeNode {predecesor = Nothing, value = o}] [] []
-            avg = fromIntegral (sum $ map (length . encontrarCamino) $ bfs [BFSTreeNode {predecesor = Nothing, value = o}] [] []) / fromIntegral (length $ bfs [BFSTreeNode {predecesor = Nothing, value = o}] [] [])
+            array = obtenerLargoPorPrediccion o (obtenerPredicciones o)
+            min = minimum array
+            max = maximum array
+            avg = fromIntegral (sum array) / fromIntegral (length array)
 
-    OraculoPreg _ _ -> (0, 0, 0.0)
+    OraculoPred _ -> (0, 0, 0.0)
+
+{-
+Recibe un oráculo, la lista de todas las predicciones definidas y retorna una lista de enteros
+
+Itera sobre el largo de la cadena para llegar a una predicción y guarda este valor.
+-}
+obtenerLargoPorPrediccion :: Oraculo -> [String] -> [Int]
+obtenerLargoPorPrediccion _ [] = []
+obtenerLargoPorPrediccion o (h:t) = obtenerLargoCadena (obtenerCadena o h) : obtenerLargoPorPrediccion o t
+
+{-
+Obtiene el largo de la cadena de la tupla Just [(String,String)] obtenida con obtenerCadena.
+-}
+
+obtenerLargoCadena :: Maybe [(String,String)] -> Int
+obtenerLargoCadena x = length (fromJust x)
 
 {-
 Recibe un oraculo y una cadena de caracteres que representa una predicción. Retorna un valor
