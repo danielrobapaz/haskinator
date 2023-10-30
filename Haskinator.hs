@@ -130,7 +130,13 @@ procesoPrediccion (OraculoPreg preg opc) = do
 
             let nuevasOpciones = Map.insert nuevaOpc (OraculoPred resp) opc
             let nuevoOraculo = OraculoPreg preg nuevasOpciones
-            return nuevoOraculo
+            let prediccionesNuevas = obtenerPredicciones nuevoOraculo
+            if hayRepetidos prediccionesNuevas then
+                do
+                    putStrLn "\n⋆⭒˚｡⋆ No intentes vacilarme, esa prediccion esta repetida.\n"
+                    return $ OraculoPreg preg opc
+                else 
+                    return $ nuevoOraculo
 
         _ -> do 
             let existeOpcion = Map.member respuesta opc
@@ -155,8 +161,6 @@ procesoPrediccion (OraculoPreg preg opc) = do
                     putStrLn "\n⋆⭒˚｡⋆ No intentes vacilarme, podré ser viejo pero sé que esa opción no está entre las que te dí.\n"
                     return $ OraculoPreg preg opc
                     
-                    
-
 {-- CLIENTE --}
 
 -- Dependiendo de la opción escogida por el usuario,
