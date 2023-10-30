@@ -1,8 +1,8 @@
-all: oraculo.hs haskinator.hs
-	ghc -o haskinator -O2 haskinator.hs oraculo.hs main.hs
+all: Oraculo.hs Haskinator.hs
+	ghc -o Haskinator -O2 Haskinator.hs Oraculo.hs Main.hs
 	$(MAKE) clean-objects
 clean: 
-	$(RM) oraculo.o oraculo.hi haskinator.o haskinator.hi haskinator main.hi main.o
+	$(RM) Oraculo.o Oraculo.hi Haskinator.o Haskinator.hi Haskinator Main.hi Main.o
 
 clean-objects:
-	$(RM) oraculo.o oraculo.hi haskinator.o haskinator.hi main.hi main.o
+	$(RM) Oraculo.o Oraculo.hi Haskinator.o Haskinator.hi Main.hi Main.o

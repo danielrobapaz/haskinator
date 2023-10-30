@@ -27,16 +27,6 @@ haskinatorHabla = do putStr "\ESC[1;3;34m"
 
 {-- FUNCIONES DE CONSTRUCCIÓN --}
 
--- Pide al usuario el nombre de un archivo y crea
--- un nuevo oráculo con la información del mismo.
-cargar :: IO Oraculo
-cargar = do
-    putStr "Ingrese el nombre del archivo: "
-    hFlush stdout
-    nombreArchivo <- getLine
-    contenido <- readFile nombreArchivo
-    return $ readOraculo contenido
-
 -- Pide al usuario el nombre de un archivo para
 -- guardar el oráculo actual.
 persistir :: Oraculo -> IO Oraculo
@@ -48,10 +38,13 @@ persistir oraculo = do
     writeFile nombreArchivo (show oraculo)
     return oraculo
 
-
+-- dado el diccionario de opciones de un oraculo
+-- devuelve los oraculos correspondientes
 obtenerOraculos :: Opciones -> [Oraculo]
 obtenerOraculos  = Map.elems
 
+-- dado un oraculo
+-- devuelve todas sus prediccion
 obtenerPredicciones :: Oraculo -> [String]
 obtenerPredicciones (OraculoPred preg) = [preg]
 obtenerPredicciones (OraculoPreg _ opc) = obtenerPrediccionesLista $ obtenerOraculos opc
@@ -60,6 +53,9 @@ obtenerPredicciones (OraculoPreg _ opc) = obtenerPrediccionesLista $ obtenerOrac
     obtenerPrediccionesLista [] = []
     obtenerPrediccionesLista (h:t) = obtenerPredicciones h ++ obtenerPrediccionesLista t
 
+-- dada una lista de strings
+-- devuelve true si hay elementos repetidos
+--          false caso contrario
 hayRepetidos :: [String] -> Bool
 hayRepetidos [] = False
 hayRepetidos (h:t) = (h `elem` t) || hayRepetidos t
@@ -196,9 +192,18 @@ comenzarHaskinator oraculo op = case op of
                 preguntarOpcion $ Just o
 
     "4" -> do -- cargar
-        o <- cargar
-        putStrLn "Oraculo cargado exitosamente.\n"
-        preguntarOpcion $ Just o
+        putStr "Ingrese el nombre del archivo: "
+        hFlush stdout
+        nombreArchivo <- getLine
+        contenido <- readFile nombreArchivo
+        let nuevoOraculo = readOraculo contenido
+        case hayRepetidos $ obtenerPredicciones nuevoOraculo of
+            True -> do 
+                putStrLn "\n⋆⭒˚｡⋆ No intentes vacilarme, hay predicciones repetidas.\n"
+                preguntarOpcion $ Nothing
+            False -> do
+                putStrLn "Oraculo cargado exitosamente" 
+                preguntarOpcion $ Just nuevoOraculo
 
     "5" -> do
         case oraculo of
