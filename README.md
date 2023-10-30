@@ -57,9 +57,10 @@ El tipo de datos **opciones** es una tupla que contiene el string de la respuest
 
 ### Estructuras de datos
 
-La estructura de datos base fue un árbol, cuyos nodos corresponden con los oráculos (pregunta o predicción), y los arcos corresponden con las opciones.
+La estructura de datos elemental que funciona como base fundamental del proyecto es el árbol, cuyos nodos corresponden a los valores del oraculo (pregunta o predicción), y los arcos corresponden con las opciones.
 
-El árbol se encuentra definido en el tipo de datos `BFSTreeNode`, este tiene como predecesor otro nodo, y como valor un oráculo.
+El árbol definido por un oráculo está implícitamente definido, por lo cual se creó un tipo de datos auxiliar en pro de facilitar la navegación por el mismo. Esta estructura de datos es el data `BFSTreeNode` definido
+en Oraculo.hs. 
 
 El árbol es recorrido usando el algoritmo de BFS, definido en una función homónima.
 
@@ -108,6 +109,8 @@ $ ./Haskinator
 
 Al ejecutarlo, no existirá un oráculo. Se requiere crear uno con la opción 1 o cargarlo con la opción 4.
 
-## Extras
+## Extras y detalles a considerar
 
 - Para la representación de Strings, mantuvimos la representación de Show sin realizar una definición propia.
+- El cliente Haskinator no es capaz de leer archivos de manera _segura_, de esta forma, si el archivo proveído al solicitar la función Cargar no existe o está mal formateado, el programa culminará en excepción sin forma de recuperarse
+- De la misma forma, si se intenta persistir un oráculo en un archivo en un directorio que no existe, el programa también crasheará.
