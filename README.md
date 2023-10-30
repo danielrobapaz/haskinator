@@ -35,7 +35,7 @@ Un oráculo pregunta tiene la siguiente sintaxis:
 ```haskell
 OraculoPreg {
     pregunta = "String de la pregunta", 
-    opciones = fromList [("Opción_0",OraculoPreg {...}),("Opción_1",OraculoPreg {...}),...,(Opción_k, OraculoPred {...} )]
+    opciones = fromList [("Opción_0",OraculoPreg {...}),("Opción_1",OraculoPreg {...}),...,("Opción_k", OraculoPred {...} )]
 }
 ```
 
