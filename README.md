@@ -32,7 +32,7 @@ Un *oráculo* es la información que posee Haskinator, y puede ser de dos tipos:
 
 Un oráculo pregunta tiene la siguiente sintaxis:
 
-```
+```haskell
 OraculoPreg {
     pregunta = "String de la pregunta", 
     opciones = fromList [("Opción_0",OraculoPreg {...}),("Opción_1",OraculoPreg {...}),...,(Opción_k, OraculoPred {...} )]
@@ -45,7 +45,7 @@ El diccionario de opciones es una tupla de opciones, donde la clave es la opció
 
 La sintaxis de un oráculo predicción es más sencilla, únicamente tiene el string de la predicción.
 
-```
+```haskell
 OraculoPred {prediccion = "String de la predicción"}
 ``` 
 #### Opciones
