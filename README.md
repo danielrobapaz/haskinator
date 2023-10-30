@@ -9,14 +9,17 @@
         2. [Opciones](#opciones)
     2. [Estructuras de datos](#estructuras-de-datos)
     3. [Funciones internas](#funciones-internas)
-2. [Haskinator.hs](#haskinatorhs)
+3. [Haskinator.hs](#haskinatorhs)
+4. [Ejecucion](#ejecución)
+5. [Extras](#extras)
+
 ## Introducción
 
 Este proyecto contempló la implementación de Haskinator, una adaptación de _Akinator_ o _Q10_ escrito en Haskell.
 
 El código está distribuido en dos archivos, `Oraculo.hs` y `Haskinator.hs`. Se describen estos archivos en las siguientes líneas:
 
-## Oraculo.hs
+## [Oraculo.hs](Oraculo.hs)
 
 Este archivo de Haskell contiene todas las estructuras de datos y funciones propias de _predicción_ de Haskinator.
 
@@ -74,7 +77,37 @@ Además están las funciones auxiliares:
 - preguntaCrucial, nodeIsPrediction, obtenerClave, obtenerLargoPorPrediccion, obtenerLargoCadena, obtenerPredicciones, encontrarCamino y bfs.
 
 
-## Haskinator.hs
+## [Haskinator.hs](Haskinator.hs)
 
 Este es el archivo que contiene al _cliente_ de Haskinator, es decir, es la parte con la que interactúa el usuario. 
 
+Dentro de `Haskinator.hs` se definieron las siguientes funciones:
+
+- Main: en esta se incluyeron persistir, obtenerOraculos, haskinatorHabla, obtenerPredicciones, hayRepetidos, procesoPrediccion, comenzarHaskinator,verificarOpcion, preguntarOpcion.
+
+Además, el cliente se ejecuta y siempre está a la espera de las solicitudes del usuario Estas son:
+
+1. Crear oráculo
+2. Predecir
+3. Persistir
+4. Cargar
+5. Consultar Pregunta Crucial
+6. Estadísticas
+7. Salir
+
+Cada opción se ejecuta al presionar el número correspondiente con la opción.
+
+## Ejecución
+
+Para la ejecución de `Haskinator` se debe tener instalado el compilador `GHC`. Los pasos son sencillos:
+
+```bash
+$ make 
+$ ./Haskinator
+```
+
+Al ejecutarlo, no existirá un oráculo. Se requiere crear uno con la opción 1 o cargarlo con la opción 4.
+
+## Extras
+
+- Para la representación de Strings, mantuvimos la representación de Show sin realizar una definición propia.
