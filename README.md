@@ -114,3 +114,4 @@ Al ejecutarlo, no existirá un oráculo. Se requiere crear uno con la opción 1 
 - Para la representación de Strings, mantuvimos la representación de Show sin realizar una definición propia.
 - El cliente Haskinator no es capaz de leer archivos de manera _segura_, de esta forma, si el archivo proveído al solicitar la función Cargar no existe o está mal formateado, el programa culminará en excepción sin forma de recuperarse
 - De la misma forma, si se intenta persistir un oráculo en un archivo en un directorio que no existe, el programa también crasheará.
+- La lectura de los inputs es case-sensitive. De esta forma, si se tienen las opciones "SI" y "NO"; "si", "Si" y "nO" no serán interpretadas como respuestas válidas.
